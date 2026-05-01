@@ -251,35 +251,6 @@ ACC: xx.xx
 
 ---
 
-## 学習したこと
-
-本プロジェクトを通して、CNN を用いた画像分類の基本的な流れを学習しました。
-
-具体的には、以下の内容を学習しました。
-
-- PyTorch による画像データセットの読み込み
-- 畳み込み層による画像特徴の抽出
-- プーリング層による特徴マップサイズの削減
-- 特徴マップサイズの計算方法
-- 全結合層に入力するための平坦化処理
-- CNN モデルの学習と評価
-- 多クラス分類における CrossEntropyLoss の使い方
-
----
-
-## 今後の改善案
-
-今後の改善案として、以下が考えられます。
-
-- 畳み込み層の追加
-- データ拡張の導入
-- Batch Normalization の追加
-- Dropout による過学習対策
-- VGG や ResNet などの深いモデルとの比較
-- 学習時の loss と accuracy の可視化
-
----
-
 # English
 
 ## Overview
@@ -513,33 +484,5 @@ If `./model/image_model.pth` does not exist, running only the evaluation functio
 
 Therefore, please train the model first before evaluation.
 
----
-
-## What I Learned
-
-Through this project, I learned the basic process of image classification using CNNs.
-
-Specifically, I learned:
-
-- How to load image datasets using PyTorch
-- How convolutional layers extract image features
-- How pooling layers reduce feature map size
-- How to calculate the shape of feature maps
-- How to flatten feature maps before fully connected layers
-- How to train and evaluate a CNN model
-- How to use CrossEntropyLoss for multi-class classification
-
----
-
-## Future Improvements
-
-Possible future improvements include:
-
-- Adding more convolutional layers
-- Using data augmentation
-- Adding batch normalization
-- Adding dropout to reduce overfitting
-- Comparing this model with deeper models such as VGG or ResNet
-- Visualizing training loss and accuracy curves
 
 ---
