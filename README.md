@@ -32,7 +32,7 @@
 
 以下の図は、本プロジェクトで設計した CNN の構造を示しています。
 
-![CNN Architecture](./image/cnn_architecture.png)
+![CNN Architecture](./image/model.png)
 
 ---
 
@@ -296,7 +296,7 @@ The main purpose of this project is to understand the basic workflow of CNN-base
 
 The following figure shows the CNN architecture designed in this project.
 
-![CNN Architecture](./image/cnn_architecture.png)
+![CNN Architecture](./image/model.png)
 
 ---
 
