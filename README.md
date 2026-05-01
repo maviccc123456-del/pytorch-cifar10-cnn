@@ -1,229 +1,545 @@
-# CIFAR-10 画像分類プロジェクト
+# CNN Image Classification with PyTorch
 
-PyTorchを使用したCIFAR-10データセットの画像分類モデル。畳み込みニューラルネットワーク(CNN)による学習と評価を実装しています。
+## Language / 言語
 
-## プロジェクト概要
+- [日本語](#日本語)
+- [English](#english)
 
-本プロジェクトは、CIFAR-10データセットを用いた画像分類システムを実装しています。CIFAR-10は10クラスの60,000枚の32x32カラー画像で構成され、50,000枚の訓練画像と10,000枚のテスト画像に分かれています。
+---
 
-### データセットのクラス
+# 日本語
 
-- airplane (飛行機) - 0
-- automobile (自動車) - 1
-- bird (鳥) - 2
-- cat (猫) - 3
-- deer (鹿) - 4
-- dog (犬) - 5
-- frog (カエル) - 6
-- horse (馬) - 7
-- ship (船) - 8
-- truck (トラック) - 9
+## 概要
 
-## 環境要件
+本プロジェクトでは、PyTorch を用いて画像分類のためのシンプルな畳み込みニューラルネットワーク CNN を実装しました。
+
+データセットには CIFAR-10 を使用しています。CIFAR-10 は、32×32 ピクセルのカラー画像を 10 クラスに分類するための代表的な画像分類データセットです。
+
+本プロジェクトの目的は、CNN を用いた画像分類の基本的な流れを理解することです。
+
+具体的には、以下の内容を扱います。
+
+- 画像データセットの読み込み
+- CNN モデルの構築
+- モデルの学習
+- 分類精度の評価
+- 特徴マップサイズの計算
+- ネットワーク構造の可視化
+
+---
+
+## 構造図
+
+以下の図は、本プロジェクトで設計した CNN の構造を示しています。
+
+![CNN Architecture](./image/cnn_architecture.png)
+
+---
+
+## データセット
+
+本プロジェクトでは、`torchvision.datasets` から提供されている CIFAR-10 データセットを使用します。
+
+CIFAR-10 には以下の 10 クラスが含まれています。
+
+| ラベル | クラス |
+|---|---|
+| 0 | airplane |
+| 1 | automobile |
+| 2 | bird |
+| 3 | cat |
+| 4 | deer |
+| 5 | dog |
+| 6 | frog |
+| 7 | horse |
+| 8 | ship |
+| 9 | truck |
+
+入力画像の形状は以下の通りです。
+
+```text
+C × H × W = 3 × 32 × 32
+```
+
+---
+
+## ネットワーク構造
+
+本モデルは、LeNet に近いシンプルな CNN 構造です。
+
+```text
+入力画像
+3 × 32 × 32
+        ↓
+畳み込み層 Conv2d: 3 → 6, kernel size = 3
+ReLU
+特徴マップ: 6 × 30 × 30
+        ↓
+最大値プーリング MaxPool2d: 2 × 2
+特徴マップ: 6 × 15 × 15
+        ↓
+畳み込み層 Conv2d: 6 → 16, kernel size = 3
+ReLU
+特徴マップ: 16 × 13 × 13
+        ↓
+最大値プーリング MaxPool2d: 2 × 2
+特徴マップ: 16 × 6 × 6
+        ↓
+平坦化 Flatten
+576
+        ↓
+全結合層
+576 → 120
+        ↓
+全結合層
+120 → 84
+        ↓
+出力層
+84 → 10
+```
+
+最終出力は 10 次元であり、CIFAR-10 の 10 クラスに対応しています。
+
+---
+
+## モデル構成
+
+本モデルは以下の層で構成されています。
+
+- 2 つの畳み込み層
+- 2 つの最大値プーリング層
+- 3 つの全結合層
+- ReLU 活性化関数
+- 多クラス分類用の CrossEntropyLoss
+
+主なモデル構造は以下の通りです。
+
+```python
+Conv2d(3, 6, kernel_size=3)
+MaxPool2d(2, 2)
+
+Conv2d(6, 16, kernel_size=3)
+MaxPool2d(2, 2)
+
+Linear(576, 120)
+Linear(120, 84)
+Linear(84, 10)
+```
+
+---
+
+## 特徴マップサイズの変化
+
+各層における特徴マップサイズの変化は以下の通りです。
+
+| 層 | 出力サイズ |
+|---|---|
+| 入力 | 3 × 32 × 32 |
+| Conv1 | 6 × 30 × 30 |
+| Pool1 | 6 × 15 × 15 |
+| Conv2 | 16 × 13 × 13 |
+| Pool2 | 16 × 6 × 6 |
+| Flatten | 576 |
+| FC1 | 120 |
+| FC2 | 84 |
+| Output | 10 |
+
+平坦化後の特徴量数は以下のように計算されます。
+
+```text
+16 × 6 × 6 = 576
+```
+
+---
+
+## 学習設定
+
+| 項目 | 値 |
+|---|---|
+| データセット | CIFAR-10 |
+| バッチサイズ | 8 |
+| エポック数 | 10 |
+| 最適化手法 | Adam |
+| 学習率 | 0.001 |
+| 損失関数 | CrossEntropyLoss |
+
+---
+
+## プロジェクト構成
+
+```text
+.
+├── main.py
+├── image
+│   └── cnn_architecture.png
+├── model
+│   └── image_model.pth
+└── README.md
+```
+
+---
+
+## 実行環境
+
+本プロジェクトでは、以下のライブラリを使用します。
 
 ```bash
 pip install torch torchvision matplotlib torchsummary
 ```
 
-**主な依存ライブラリ：**
-- PyTorch
-- torchvision
-- matplotlib
-- torchsummary
+---
 
-## プロジェクト構造
+## 実行方法
 
-```
-.
-├── data/              # CIFAR-10データセット格納ディレクトリ（自動ダウンロード）
-├── model/             # 学習済みモデル保存ディレクトリ（手動作成が必要）
-└── main.py            # メインプログラムファイル
+### 1. 必要なライブラリのインストール
+
+```bash
+pip install torch torchvision matplotlib torchsummary
 ```
 
-## モデルアーキテクチャ
+### 2. モデル保存用フォルダの作成
 
-本プロジェクトで使用するCNNモデルは以下の層で構成されています：
+学習済みモデルは `model` フォルダに保存されるため、事前にフォルダを作成します。
 
-1. **第1畳み込みブロック**
-   - 畳み込み層：3 → 6チャネル、カーネルサイズ 3x3
-   - ReLU活性化関数
-   - 最大プーリング層：2x2
-
-2. **第2畳み込みブロック**
-   - 畳み込み層：6 → 16チャネル、カーネルサイズ 3x3
-   - ReLU活性化関数
-   - 最大プーリング層：2x2
-
-3. **全結合層**
-   - FC1: 576 → 120
-   - FC2: 120 → 84
-   - 出力層: 84 → 10
-
-## 使用方法
-
-### 事前準備
-
-1. モデル保存ディレクトリの作成：
 ```bash
 mkdir model
 ```
 
-2. 初回実行時、CIFAR-10データセットが自動的に `./data` ディレクトリにダウンロードされます
+### 3. モデルの学習
 
-### モード1：モデルの学習
-
-**実行が必要なコード：**
-
-`if __name__=='__main__':` 部分で、以下のコードのコメントを解除してください：
+`main` 関数内の以下の行を有効にします。
 
 ```python
-if __name__=='__main__':
-    # 1. データセットの取得（必須）
-    train_dataset, test_dataset = create_dataset()
-    
-    # 2. モデルの学習（必須）
-    train(train_dataset)
+train(train_dataset)
 ```
 
-**オプションの補助コード：**
+その後、以下のコマンドを実行します。
+
+```bash
+python main.py
+```
+
+学習後、モデルのパラメータは以下のパスに保存されます。
+
+```text
+./model/image_model.pth
+```
+
+### 4. モデルの評価
+
+学習後、以下の関数を実行することでテストデータに対する評価を行います。
 
 ```python
-# データセット情報の確認（オプション）
-print(f'訓練セット：{train_dataset.data.shape}')  # (50000, 32, 32, 3)
-print(f'テストセット：{test_dataset.data.shape}')  # (10000, 32, 32, 3)
-print(f'データセットクラス：{train_dataset.class_to_idx}')
-
-# 画像の表示（オプション）
-plt.figure(figsize=(2,2))
-plt.imshow(train_dataset.data[11])
-plt.title(train_dataset.targets[11])
-plt.show()
-
-# モデルパラメータの確認（オプション）
-model = ImageModel()
-summary(model, (3, 32, 32), batch_size=1)
+evaluate(test_dataset)
 ```
 
-**コメントアウトが必要なコード：**
+実行すると、分類精度が表示されます。
 
-```python
-# evaluate(test_dataset)  # 学習時はテストは不要
+```text
+ACC: xx.xx
 ```
-
-**学習パラメータの設定：**
-- バッチサイズ (BATCH_SIZE): 8
-- エポック数 (epochs): 10
-- 学習率: 0.001
-- オプティマイザ: Adam
-- 損失関数: CrossEntropyLoss
-
-**学習出力例：**
-```
-epoch:1, loss:1.23456, acc:0.45, time:120.50s
-epoch:2, loss:1.10234, acc:0.52, time:118.30s
-epoch:3, loss:0.98765, acc:0.58, time:119.20s
-...
-epoch:10, loss:0.65432, acc:0.72, time:118.80s
-```
-
-学習完了後、モデルは自動的に `./model/image_model.pth` に保存されます
 
 ---
 
-### モード2：モデルの評価
+## 注意点
 
-**実行が必要なコード：**
+現在のコードでは、学習用の関数 `train(train_dataset)` がコメントアウトされており、評価用の `evaluate(test_dataset)` のみが実行される場合があります。
 
-`if __name__=='__main__':` 部分で、以下のコードのコメントを解除してください：
+その場合、`./model/image_model.pth` が存在しないとエラーになります。
 
-```python
-if __name__=='__main__':
-    # 1. データセットの取得（必須）
-    train_dataset, test_dataset = create_dataset()
-    
-    # 2. モデルの評価（必須）
-    evaluate(test_dataset)
-```
-
-**コメントアウトが必要なコード：**
-
-```python
-# 以下のコードは評価時には実行不要
-
-# train(train_dataset)  # 学習は不要
-
-# データセット情報の確認は不要
-# print(f'訓練セット：{train_dataset.data.shape}')
-# print(f'テストセット：{test_dataset.data.shape}')
-# print(f'データセットクラス：{train_dataset.class_to_idx}')
-
-# 画像表示は不要
-# plt.figure(figsize=(2,2))
-# plt.imshow(train_dataset.data[11])
-# plt.title(train_dataset.targets[11])
-# plt.show()
-
-# モデルパラメータの確認は不要
-# model = ImageModel()
-# summary(model, (3, 32, 32), batch_size=1)
-```
-
-**評価出力例：**
-```
-ACC: 0.65
-```
-
-**注意事項：**
-- 評価前に必ず学習を完了し、`./model/image_model.pth` ファイルが存在することを確認してください
-- 評価モードでは、保存済みのモデルパラメータを読み込んで評価を行います
-- 評価時にモデルパラメータは変更されません
+そのため、初回実行時には必ず先にモデルを学習してください。
 
 ---
 
-## 完全なコード実行フロー
+## 学習したこと
 
-### 初回使用（学習）
+本プロジェクトを通して、CNN を用いた画像分類の基本的な流れを学習しました。
 
-```python
-if __name__=='__main__':
-    # データセットの取得
-    train_dataset, test_dataset = create_dataset()
-    
-    # モデルの学習
-    train(train_dataset)
+具体的には、以下の内容を学習しました。
+
+- PyTorch による画像データセットの読み込み
+- 畳み込み層による画像特徴の抽出
+- プーリング層による特徴マップサイズの削減
+- 特徴マップサイズの計算方法
+- 全結合層に入力するための平坦化処理
+- CNN モデルの学習と評価
+- 多クラス分類における CrossEntropyLoss の使い方
+
+---
+
+## 今後の改善案
+
+今後の改善案として、以下が考えられます。
+
+- 畳み込み層の追加
+- データ拡張の導入
+- Batch Normalization の追加
+- Dropout による過学習対策
+- VGG や ResNet などの深いモデルとの比較
+- 学習時の loss と accuracy の可視化
+
+---
+
+# English
+
+## Overview
+
+This project implements a simple Convolutional Neural Network CNN for image classification using PyTorch.
+
+The model is trained and evaluated on the CIFAR-10 dataset. CIFAR-10 is a standard image classification dataset consisting of 32×32 color images from 10 different classes.
+
+The main purpose of this project is to understand the basic workflow of CNN-based image classification, including dataset loading, model construction, training, evaluation, and feature map size calculation.
+
+---
+
+## Architecture Figure
+
+The following figure shows the CNN architecture designed in this project.
+
+![CNN Architecture](./image/cnn_architecture.png)
+
+---
+
+## Dataset
+
+This project uses the CIFAR-10 dataset provided by `torchvision.datasets`.
+
+CIFAR-10 contains 10 classes:
+
+| Label | Class |
+|---|---|
+| 0 | airplane |
+| 1 | automobile |
+| 2 | bird |
+| 3 | cat |
+| 4 | deer |
+| 5 | dog |
+| 6 | frog |
+| 7 | horse |
+| 8 | ship |
+| 9 | truck |
+
+The input image shape is:
+
+```text
+C × H × W = 3 × 32 × 32
 ```
 
-### 2回目の使用（評価）
+---
 
-```python
-if __name__=='__main__':
-    # データセットの取得
-    train_dataset, test_dataset = create_dataset()
-    
-    # モデルの評価
-    evaluate(test_dataset)
+## Network Architecture
+
+The model follows a simple LeNet-style CNN structure.
+
+```text
+Input Image
+3 × 32 × 32
+        ↓
+Conv2d: 3 → 6, kernel size = 3
+ReLU
+Feature Map: 6 × 30 × 30
+        ↓
+MaxPool2d: 2 × 2
+Feature Map: 6 × 15 × 15
+        ↓
+Conv2d: 6 → 16, kernel size = 3
+ReLU
+Feature Map: 16 × 13 × 13
+        ↓
+MaxPool2d: 2 × 2
+Feature Map: 16 × 6 × 6
+        ↓
+Flatten
+576
+        ↓
+Fully Connected Layer
+576 → 120
+        ↓
+Fully Connected Layer
+120 → 84
+        ↓
+Output Layer
+84 → 10
 ```
 
-## クイックデバッグのヒント
+The final output has 10 dimensions, corresponding to the 10 classes of CIFAR-10.
 
-コードの動作を素早くテストしたい場合：
+---
 
-1. **エポック数を減らす**：`epochs=10` を `epochs=1` に変更
-2. **各エポックで1バッチのみ学習**：train関数のバッチループの最後にある `break` のコメントを解除
-3. **1エポックのみ学習**：train関数のエポックループの最後にある `break` のコメントを解除
+## Model Details
 
-## パフォーマンス最適化の提案
+The model consists of:
 
-- エポック数を増やす（例：epochs=20 または 50）ことで精度を向上
-- バッチサイズを調整（例：BATCH_SIZE=32 または 64）
-- GPU加速を使用：
-  ```python
-  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-  model = model.to(device)
-  x, y = x.to(device), y.to(device)
-  ```
-- データ拡張を追加してモデルの汎化性能を向上
+- Two convolutional layers
+- Two max pooling layers
+- Three fully connected layers
+- ReLU activation functions
+- Cross entropy loss for multi-class classification
 
-## ライセンス
+The main model structure is:
 
-本プロジェクトは学習・研究目的でのみ使用してください
+```python
+Conv2d(3, 6, kernel_size=3)
+MaxPool2d(2, 2)
+
+Conv2d(6, 16, kernel_size=3)
+MaxPool2d(2, 2)
+
+Linear(576, 120)
+Linear(120, 84)
+Linear(84, 10)
+```
+
+---
+
+## Shape Transformation
+
+The feature map size changes as follows:
+
+| Layer | Output Shape |
+|---|---|
+| Input | 3 × 32 × 32 |
+| Conv1 | 6 × 30 × 30 |
+| Pool1 | 6 × 15 × 15 |
+| Conv2 | 16 × 13 × 13 |
+| Pool2 | 16 × 6 × 6 |
+| Flatten | 576 |
+| FC1 | 120 |
+| FC2 | 84 |
+| Output | 10 |
+
+The flattened feature size is calculated as:
+
+```text
+16 × 6 × 6 = 576
+```
+
+---
+
+## Training Settings
+
+| Item | Value |
+|---|---|
+| Dataset | CIFAR-10 |
+| Batch size | 8 |
+| Epochs | 10 |
+| Optimizer | Adam |
+| Learning rate | 0.001 |
+| Loss function | CrossEntropyLoss |
+
+---
+
+## Project Structure
+
+```text
+.
+├── main.py
+├── image
+│   └── cnn_architecture.png
+├── model
+│   └── image_model.pth
+└── README.md
+```
+
+---
+
+## Environment
+
+This project uses the following libraries:
+
+```bash
+pip install torch torchvision matplotlib torchsummary
+```
+
+---
+
+## How to Run
+
+### 1. Install dependencies
+
+```bash
+pip install torch torchvision matplotlib torchsummary
+```
+
+### 2. Prepare the model directory
+
+Since the trained model is saved in the `model` directory, create the directory before training.
+
+```bash
+mkdir model
+```
+
+### 3. Train the model
+
+In the `main` function, uncomment the following line:
+
+```python
+train(train_dataset)
+```
+
+Then run:
+
+```bash
+python main.py
+```
+
+After training, the model parameters will be saved as:
+
+```text
+./model/image_model.pth
+```
+
+### 4. Evaluate the model
+
+After training, run the evaluation function:
+
+```python
+evaluate(test_dataset)
+```
+
+The program will output the classification accuracy:
+
+```text
+ACC: xx.xx
+```
+
+---
+
+## Important Note
+
+In the current code, the training function may be commented out and only the evaluation function may be executed.
+
+If `./model/image_model.pth` does not exist, running only the evaluation function will cause an error.
+
+Therefore, please train the model first before evaluation.
+
+---
+
+## What I Learned
+
+Through this project, I learned the basic process of image classification using CNNs.
+
+Specifically, I learned:
+
+- How to load image datasets using PyTorch
+- How convolutional layers extract image features
+- How pooling layers reduce feature map size
+- How to calculate the shape of feature maps
+- How to flatten feature maps before fully connected layers
+- How to train and evaluate a CNN model
+- How to use CrossEntropyLoss for multi-class classification
+
+---
+
+## Future Improvements
+
+Possible future improvements include:
+
+- Adding more convolutional layers
+- Using data augmentation
+- Adding batch normalization
+- Adding dropout to reduce overfitting
+- Comparing this model with deeper models such as VGG or ResNet
+- Visualizing training loss and accuracy curves
+
+---
